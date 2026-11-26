@@ -10,7 +10,7 @@ export const site = {
   // Shown on the home page. Keep to three short, true lines; edit when they change.
   currently: [
     { label: 'Lifeline', text: 'Finishing the course implementation and the emulation evaluation.', href: '/projects/lifeline/' },
-    { label: 'Nexus', text: 'Starting core implementation, beginning with the repository setup and the determinism library.', href: '/projects/nexus/' },
+    { label: 'Nexus', text: 'Core implementation under way: state, event log, tick scheduler and truth engine are in and tested; gateway, agent runtime and daemon come next.', href: '/projects/nexus/' },
     { label: 'FlightOps', text: 'Planned over the winter break: a Go drone fleet platform on MAVLink and PX4 simulation.' },
   ] as { label: string; text: string; href?: string }[],
 };

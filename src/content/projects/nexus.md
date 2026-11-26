@@ -1,7 +1,7 @@
 ---
 title: Nexus
 pitch: A persistent, round, Earth-like world where human avatars and learning AI agents coexist, and every change must pass a rule-enforcing core.
-status: design-complete
+status: in-progress
 featured: true
 order: 2
 tags: [systems, determinism, security, research]
@@ -10,12 +10,13 @@ context: Long-term personal research and engineering project
 role: Architecture, formal specification and core implementation
 period: { start: 2026-11 }
 metrics:
+  - { value: "344", label: Automated tests passing, note: "Release build, run on a clean machine; C++ only" }
+  - { value: "15 / 30", label: Work packages done, note: "State, event log, scheduler, truth engine, ecology merged" }
+  - { value: "≈20k", label: Lines of C++, note: "About 11k of core and runtime, about 9k of tests" }
   - { value: "25", label: Architecture decision records, note: All accepted for the prototype }
-  - { value: "13", label: Formal world properties, note: "P1 to P13 in the specification" }
-  - { value: "30", label: Work packages, note: With a dependency graph and critical path }
 links:
   repoVisibility: private
-updated: 2026-11-26
+updated: 2026-11-27
 ---
 
 ## Problem
@@ -30,10 +31,14 @@ The core is written once, in C++20, with no throwaway prototype. A Go gateway ha
 
 ## Evidence
 
-The design is written down and was reviewed before being committed to code: a formal world specification with 13 properties and 23 explicit assumptions, 25 architecture decision records, a threat model, a core design document, and a development plan of 30 work packages. The specification phase for the core (WP-04) was completed on 25 November 2026.
+The design was written down and reviewed before it was committed to code: a formal world specification with 13 properties and 23 explicit assumptions, 25 architecture decision records, a threat model, a core design document and a development plan of 30 work packages.
 
-Implementation has started and is held to the same discipline as the design. The repository has determinism, state, topology and content modules with their tests, generators for test vectors, a linter that checks code for determinism hazards, and a single check script that builds and tests under debug, address, undefined-behaviour and thread sanitizer presets.
+The implementation follows that plan one work package per pull request, and CI builds and tests each one. As of 26 November 2026 the core has the cubed-sphere topology, a strict content format with an immutable hashed registry, world state with all-or-nothing apply, a sparse Merkle state root, a hash-chained event log with recovery, a tick scheduler, the Truth Model engine with its Logos, Guardian and Resolver stages, watchers and views, rule-driven physics and clocks, actions and capabilities, and a first ecology. Where a component has a byte format or a hash, it is cross-checked against an independent Python implementation, so the C++ is not only tested against itself. A linter rejects code that could break determinism.
+
+I built the core in a release configuration on a clean machine and ran the whole suite: 344 C++ tests, all passing, including a 100,000-tick run that checks the world's total value changes only through declared flows (68 s). The same run in an unoptimised debug build takes over nine minutes, so the debug preset is slow for that test. The tick benchmark ran 3,000 ticks of a Block-01-sized world (27 agents) through the real enforcement pipeline with the log synced to disk on every tick: about 800 ticks per second, a 99.9th percentile of about 4.8 ms against the 100 ms deadline, and no overruns. The rules in that benchmark are stand-ins, so it is a floor for the real cost of a tick, not a forecast. The repository's performance baseline records the method.
+
+Most of the implementation was done in pull requests with Claude as a co-author, and the commits say so.
 
 ## Limits and next steps
 
-Nothing about Nexus is running as a world yet; the next packages are the repository and CI setup and the determinism library. Several areas are deliberately undesigned: the evaluation of what agents learn, the protocol between regions, and the format of the strictest determinism level. Magic, a planned gameplay mechanic, comes only after the prototype's first stages. The source is private for now.
+Nexus is not yet a running world. There is a deterministic core with a tested tick loop, but no network gateway, no agent runtime and no viewer: the Go gateway is a stub and the Python side is a skeleton. Fifteen of the 30 work packages are marked done, with ecology merged since; the rest, including the daemon, replay tooling, the SDK and the graphics, are still ahead. Several areas are deliberately undesigned: how agent learning is evaluated, the protocol between regions, and the format of the strictest determinism level. Magic, a planned gameplay mechanic, comes only after the prototype's first stages. I could not run the Go tests here because the repository does not commit its `go.sum` file. The source is private for now.
