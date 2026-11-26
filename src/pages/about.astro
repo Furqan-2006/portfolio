@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import { site } from '../site';
+import { url } from '../lib-url';
 ---
 <Base title="About">
   <section class="max-w-2xl pt-14">
@@ -9,6 +10,18 @@ import { site } from '../site';
       <p>I'm Furqan, a third-year computer science student at FAST NUCES in Karachi. My focus is systems engineering, with security layered on top: I'm more interested in how a system is built so that it holds up than in breaking other people's.</p>
       <p>Most of my work is in C and C++, with Python and Go where they fit.</p>
       <p>I'm looking for a remote internship in backend, systems or infrastructure engineering.</p>
+      <h2>What I have used, and where</h2>
+      <p>Grouped by the work that shows it, not by self-rating.</p>
+      <table>
+        <thead><tr><th>Area</th><th>Used in</th></tr></thead>
+        <tbody>
+          <tr><td>C, C++, Linux internals</td><td><a href={url('/projects/aegis/')}>Aegis</a>, <a href={url('/projects/sam/')}>SAM</a> (<code>/proc</code>, Unix sockets); <a href={url('/projects/justiceflow/')}>JusticeFlow</a> (daemon, signals, shared memory)</td></tr>
+          <tr><td>Python</td><td><a href={url('/projects/lifeline/')}>Lifeline</a>, <a href={url('/projects/sysmon/')}>SysMon</a>, JusticeFlow dashboard and agents</td></tr>
+          <tr><td>Security</td><td>Lifeline (Ed25519, X25519, ChaCha20-Poly1305); JusticeFlow (audit triggers, least-privilege database roles)</td></tr>
+          <tr><td>Databases</td><td>PostgreSQL in JusticeFlow; SQLite in SysMon</td></tr>
+          <tr><td>Design stage only</td><td>Go and C++20 in <a href={url('/projects/nexus/')}>Nexus</a>, which is design-complete, not built</td></tr>
+        </tbody>
+      </table>
       <h2>Contact</h2>
       <p><a href={`mailto:${site.email}`}>{site.email}</a> · <a href={site.github}>github.com/Furqan-2006</a></p>
     </div>

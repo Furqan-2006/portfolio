@@ -46,3 +46,7 @@ a { color: inherit; }
 .prose th { text-align: left; font-weight: 600; color: var(--color-muted); font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; }
 .prose th, .prose td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--color-line); vertical-align: top; }
 .prose blockquote { border-left: 3px solid var(--color-accent); padding-left: 1rem; color: var(--color-muted); margin: 0 0 1rem; }
+
+.prose figure.diagram { margin: 0 0 1.5rem; padding: 1rem; background: var(--color-panel); border: 1px solid var(--color-line); border-radius: 10px; }
+.prose figure.diagram svg { width: 100%; height: auto; display: block; }
+.prose figcaption { margin-top: .75rem; font-size: .85rem; color: var(--color-muted); }

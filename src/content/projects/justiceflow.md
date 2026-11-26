@@ -29,6 +29,27 @@ Police casework needs records that cannot be quietly rewritten: who registered a
 
 ## Design
 
+<figure class="diagram">
+<svg viewBox="0 0 760 290" role="img" aria-label="JusticeFlow request path: browser to Flask dashboard to a C++ daemon over a Unix socket, then PostgreSQL; the daemon also spawns Python agents on a timer.">
+<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--color-muted)"/></marker></defs>
+<g font-family="var(--font-mono)" font-size="12" fill="var(--color-text)">
+<rect x="10" y="95" width="110" height="60" rx="8" fill="var(--color-panel)" stroke="var(--color-line)"/><text x="65" y="130" text-anchor="middle">Browser</text>
+<rect x="170" y="95" width="130" height="60" rx="8" fill="var(--color-panel)" stroke="var(--color-line)"/><text x="235" y="122" text-anchor="middle">Flask</text><text x="235" y="140" text-anchor="middle" fill="var(--color-muted)">dashboard</text>
+<rect x="350" y="20" width="250" height="250" rx="10" fill="none" stroke="var(--color-accent)" stroke-dasharray="4 4"/><text x="365" y="40" fill="var(--color-accent)">C++ daemon</text>
+<rect x="370" y="60" width="210" height="52" rx="8" fill="var(--color-panel)" stroke="var(--color-line)"/><text x="475" y="82" text-anchor="middle">command router</text><text x="475" y="100" text-anchor="middle" fill="var(--color-muted)">token check, then command</text>
+<rect x="370" y="130" width="210" height="52" rx="8" fill="var(--color-panel)" stroke="var(--color-line)"/><text x="475" y="152" text-anchor="middle">1 s ticker thread</text><text x="475" y="170" text-anchor="middle" fill="var(--color-muted)">warrant expiry, agent jobs</text>
+<rect x="370" y="200" width="210" height="52" rx="8" fill="var(--color-panel)" stroke="var(--color-line)"/><text x="475" y="222" text-anchor="middle">agent spawner</text><text x="475" y="240" text-anchor="middle" fill="var(--color-muted)">posix_spawn, waitpid, timeout</text>
+<rect x="650" y="40" width="100" height="80" rx="8" fill="var(--color-panel)" stroke="var(--color-line)"/><text x="700" y="76" text-anchor="middle">PostgreSQL</text><text x="700" y="94" text-anchor="middle" fill="var(--color-muted)">audit triggers</text>
+<rect x="650" y="190" width="100" height="70" rx="8" fill="var(--color-panel)" stroke="var(--color-line)"/><text x="700" y="220" text-anchor="middle">3 Python</text><text x="700" y="238" text-anchor="middle" fill="var(--color-muted)">agents</text>
+</g>
+<g stroke="var(--color-muted)" stroke-width="1.5" fill="none" marker-end="url(#ar)">
+<path d="M120 125 H168"/><path d="M300 125 H368"/><path d="M580 86 H648"/><path d="M580 226 H648"/><path d="M700 188 V122"/>
+</g>
+<g font-family="var(--font-mono)" font-size="10.5" fill="var(--color-muted)"><text x="334" y="116" text-anchor="middle">Unix socket</text><text x="334" y="146" text-anchor="middle">JSON frame</text><text x="615" y="78" text-anchor="middle">as officer</text><text x="712" y="160">own role</text></g>
+</svg>
+<figcaption>One request path: the dashboard never talks to the database. Agents run as their own database role.</figcaption>
+</figure>
+
 A request has one path. The Flask dashboard never opens a database connection. It sends one length-prefixed JSON frame over a Unix domain socket to a C++ daemon, which checks the session token, runs the command against PostgreSQL and replies. Sign-in, sign-out and "who am I" are handled by the daemon's command router, and every data read and every write is refused without a valid token.
 
 Writes are where the design earns its keep. A write runs as the signed-in officer in a single locked transaction that first sets the current officer's ID, then runs a statement with bound parameters. The database's audit triggers read that ID, so the audit log names the real officer and belt number. The application's database role has no `DELETE` and cannot `UPDATE` audit rows, so the application itself cannot rewrite history.

@@ -13,6 +13,9 @@ const d = project.data;
     <StatusBadge status={d.status} />
   </div>
   <p class="mb-4 text-sm text-muted">{d.pitch}</p>
+  {d.metrics[0] && (
+    <p class="mb-4 flex items-baseline gap-2 text-sm"><span class="font-mono text-lg text-[color:var(--tone)]">{d.metrics[0].value}</span><span class="text-text">{d.metrics[0].label}</span></p>
+  )}
   <p class="font-mono text-xs text-muted/80">{d.stack.join(' · ')}</p>
   <p class="mt-4 flex items-end justify-between gap-4 font-mono text-xs text-muted">
     <span>{d.context}</span>

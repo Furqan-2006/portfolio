@@ -22,8 +22,8 @@ const period = `${fmt(d.period.start)} – ${d.period.end ? fmt(d.period.end) : 
 const updated = d.updated.toLocaleDateString('en', { day: 'numeric', month: 'short', year: 'numeric' });
 ---
 <Base title={d.title} description={d.pitch}>
-  <article class={`tone-${d.status} pt-14`}>
-    <a href={url('/projects/')} class="font-mono text-xs text-muted no-underline hover:text-accent">← projects</a>
+  <article id="top" class={`tone-${d.status} pt-14`}>
+    <nav aria-label="Breadcrumb" class="font-mono text-xs text-muted"><a href={url('/')} class="no-underline hover:text-accent">home</a> / <a href={url('/projects/')} class="no-underline hover:text-accent">projects</a> / <span class="text-text">{d.title.toLowerCase()}</span></nav>
 
     <header class="mt-6">
       <div class="flex flex-wrap items-center gap-4">
@@ -80,6 +80,6 @@ const updated = d.updated.toLocaleDateString('en', { day: 'numeric', month: 'sho
       </nav>
     </div>
 
-    <p class="mt-12 font-mono text-xs text-muted">last updated {updated}</p>
+    <p class="mt-12 flex justify-between font-mono text-xs text-muted"><span>last updated {updated}</span><a href="#top" class="no-underline hover:text-accent">↑ back to top</a></p>
   </article>
 </Base>
