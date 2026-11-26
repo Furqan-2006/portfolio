@@ -17,11 +17,22 @@
 
 html { background: var(--color-bg); color: var(--color-text); font-family: var(--font-sans); }
 body { min-height: 100vh; line-height: 1.65; }
+html { scroll-behavior: smooth; overflow-x: clip; }
+.hero-grid { background-image: linear-gradient(var(--color-line) 1px, transparent 1px), linear-gradient(90deg, var(--color-line) 1px, transparent 1px); background-size: 44px 44px; -webkit-mask-image: radial-gradient(ellipse 60% 70% at 85% 20%, #000 0%, transparent 70%); mask-image: radial-gradient(ellipse 60% 70% at 85% 20%, #000 0%, transparent 70%); opacity: .35; }
+.tone-running { --tone: var(--color-running); } .tone-measured { --tone: var(--color-measured); }
+.tone-design-complete { --tone: var(--color-design); } .tone-in-progress { --tone: var(--color-progress); }
+.card-accent { position: relative; overflow: hidden; }
+.card-accent::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--tone); opacity: .7; transition: opacity .15s, width .15s; }
+.card-accent:hover::before { opacity: 1; width: 4px; }
+.card-accent:hover { transform: translateY(-1px); box-shadow: 0 8px 24px -12px color-mix(in srgb, var(--tone) 40%, transparent); }
+:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; border-radius: 4px; }
 a { color: inherit; }
 ::selection { background: color-mix(in srgb, var(--color-accent) 30%, transparent); }
 
 /* Case-study body: prose styling for rendered Markdown. */
-.prose h2 { font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-accent); margin: 2.75rem 0 1rem; padding-top: 1.5rem; border-top: 1px solid var(--color-line); }
+.prose { counter-reset: sec; font-size: 1.0625rem; line-height: 1.75; }
+.prose h2::before { counter-increment: sec; content: counter(sec, decimal-leading-zero) ' / '; color: var(--color-muted); }
+.prose h2 { scroll-margin-top: 1.5rem; font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-accent); margin: 2.75rem 0 1rem; padding-top: 1.5rem; border-top: 1px solid var(--color-line); }
 .prose h3 { font-size: 1.05rem; font-weight: 600; margin: 1.75rem 0 0.5rem; }
 .prose p { margin: 0 0 1rem; color: #c3ccd6; }
 .prose ul, .prose ol { margin: 0 0 1rem 1.25rem; color: #c3ccd6; }

@@ -12,7 +12,8 @@ export async function getStaticPaths() {
 
 const { project } = Astro.props;
 const d = project.data;
-const { Content } = await render(project);
+const { Content, headings } = await render(project);
+const toc = headings.filter((h) => h.depth === 2);
 const fmt = (s: string) => {
   const [y, m] = s.split('-');
   return m ? new Date(Number(y), Number(m) - 1).toLocaleString('en', { month: 'short', year: 'numeric' }) : y;
@@ -21,7 +22,7 @@ const period = `${fmt(d.period.start)} – ${d.period.end ? fmt(d.period.end) : 
 const updated = d.updated.toLocaleDateString('en', { day: 'numeric', month: 'short', year: 'numeric' });
 ---
 <Base title={d.title} description={d.pitch}>
-  <article class="pt-14">
+  <article class={`tone-${d.status} pt-14`}>
     <a href={url('/projects/')} class="font-mono text-xs text-muted no-underline hover:text-accent">← projects</a>
 
     <header class="mt-6">
@@ -67,7 +68,17 @@ const updated = d.updated.toLocaleDateString('en', { day: 'numeric', month: 'sho
       {d.links.docs && <a href={d.links.docs} class="rounded-lg border border-line px-3 py-1.5 text-muted no-underline hover:text-accent">docs ↗</a>}
     </div>
 
-    <div class="prose mt-10 max-w-3xl"><Content /></div>
+    <div class="mt-10 grid gap-12 xl:grid-cols-[minmax(0,48rem)_12rem]">
+      <div class="prose"><Content /></div>
+      <nav aria-label="On this page" class="hidden xl:block">
+        <div class="sticky top-8 border-l border-line pl-4 text-sm">
+          <p class="mb-3 font-mono text-xs uppercase tracking-[0.15em] text-muted">On this page</p>
+          <ol class="space-y-2">
+            {toc.map((h, i) => <li><a href={`#${h.slug}`} class="text-muted no-underline hover:text-accent"><span class="font-mono text-xs">{String(i + 1).padStart(2, '0')}</span> {h.text}</a></li>)}
+          </ol>
+        </div>
+      </nav>
+    </div>
 
     <p class="mt-12 font-mono text-xs text-muted">last updated {updated}</p>
   </article>
