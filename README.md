@@ -33,7 +33,13 @@ npm run check      # content check + type check
 npm run build      # check, then build to dist/
 ```
 
-Site-wide facts (name, email, links) live in `src/site.ts`. Set `site` in `astro.config.mjs` to the final URL before deploying.
+Site-wide facts (name, email, links) live in `src/site.ts`.
+
+## Deployment
+
+GitHub Actions builds and deploys to GitHub Pages on every push to `main` (`.github/workflows/deploy.yml`). The URL and base path come from the environment, and every internal link goes through `src/lib-url.ts`, so nothing is hard-coded to a path.
+
+To move to a custom domain: set `SITE_URL` to the domain and `BASE_PATH` to `/` in the workflow, and set the domain in the repository's Pages settings.
 
 ## Planned
 

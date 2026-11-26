@@ -4,6 +4,7 @@ import ProjectCard from '../components/ProjectCard.astro';
 import StatusBadge from '../components/StatusBadge.astro';
 import { getProjects } from '../lib-projects';
 import { site } from '../site';
+import { url } from '../lib-url';
 
 const projects = await getProjects();
 const featured = projects.filter((p) => p.data.featured);
@@ -15,7 +16,7 @@ const others = projects.filter((p) => !p.data.featured);
     <h1 class="max-w-3xl text-4xl font-semibold leading-tight tracking-tight text-text sm:text-5xl">{site.tagline}</h1>
     <p class="mt-6 max-w-2xl text-lg text-muted">{site.intro}</p>
     <div class="mt-8 flex flex-wrap gap-4 font-mono text-sm">
-      <a href="/projects/" class="rounded-lg border border-accent/60 px-4 py-2 text-accent no-underline hover:bg-accent/10">Browse projects</a>
+      <a href={url('/projects/')} class="rounded-lg border border-accent/60 px-4 py-2 text-accent no-underline hover:bg-accent/10">Browse projects</a>
       <a href={site.github} class="rounded-lg border border-line px-4 py-2 text-muted no-underline hover:text-text">GitHub</a>
     </div>
   </section>
@@ -33,7 +34,7 @@ const others = projects.filter((p) => !p.data.featured);
       <ul class="divide-y divide-line rounded-xl border border-line bg-panel">
         {others.map((p) => (
           <li>
-            <a href={`/projects/${p.id}/`} class="flex items-start justify-between gap-4 px-5 py-4 no-underline hover:bg-white/[0.02]">
+            <a href={url(`/projects/${p.id}/`)} class="flex items-start justify-between gap-4 px-5 py-4 no-underline hover:bg-white/[0.02]">
               <span class="flex-1">
                 <span class="block font-medium text-text">{p.data.title}</span>
                 <span class="block text-sm text-muted">{p.data.pitch}</span>

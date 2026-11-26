@@ -3,6 +3,7 @@ import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import StatusBadge from '../../components/StatusBadge.astro';
 import { getProjects } from '../../lib-projects';
+import { url } from '../../lib-url';
 
 export async function getStaticPaths() {
   const projects = await getProjects();
@@ -21,7 +22,7 @@ const updated = d.updated.toLocaleDateString('en', { day: 'numeric', month: 'sho
 ---
 <Base title={d.title} description={d.pitch}>
   <article class="pt-14">
-    <a href="/projects/" class="font-mono text-xs text-muted no-underline hover:text-accent">← projects</a>
+    <a href={url('/projects/')} class="font-mono text-xs text-muted no-underline hover:text-accent">← projects</a>
 
     <header class="mt-6">
       <div class="flex flex-wrap items-center gap-4">
