@@ -21,6 +21,21 @@ const others = projects.filter((p) => !p.data.featured);
     </div>
   </section>
 
+  <section class="mb-14">
+    <h2 class="mb-4 font-mono text-xs uppercase tracking-[0.15em] text-muted">Currently</h2>
+    <ul class="space-y-2 text-sm">
+      {site.currently.map((c) => (
+        <li class="flex gap-3">
+          <span class="select-none font-mono text-accent">&gt;</span>
+          <span class="text-muted">
+            {c.href ? <a href={url(c.href)} class="font-medium text-text no-underline hover:text-accent">{c.label}</a> : <span class="font-medium text-text">{c.label}</span>}
+            <span class="ml-2">{c.text}</span>
+          </span>
+        </li>
+      ))}
+    </ul>
+  </section>
+
   <section>
     <h2 class="mb-6 font-mono text-xs uppercase tracking-[0.15em] text-muted">Featured</h2>
     <div class="grid gap-5 md:grid-cols-1">
