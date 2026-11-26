@@ -37,14 +37,6 @@ const projects = defineCollection({
         docs: z.url().optional(),
       })
       .default({ repoVisibility: 'public' }),
-    demo: z
-      .object({
-        kind: z.enum(['replay', 'recording', 'live']),
-        status: z.enum(['planned', 'available']),
-        url: z.string().optional(),
-        note: z.string().optional(),
-      })
-      .optional(),
     updated: z.coerce.date(),
   }),
 });

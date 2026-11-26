@@ -20,10 +20,6 @@ metrics:
 links:
   repo: https://github.com/Furqan-2006/Lifeline
   repoVisibility: public
-demo:
-  kind: replay
-  status: planned
-  note: A browser replay of a seeded emulation run, driven by the structured event log each node writes.
 updated: 2026-11-26
 ---
 

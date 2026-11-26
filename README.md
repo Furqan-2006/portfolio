@@ -41,6 +41,3 @@ GitHub Actions builds and deploys to GitHub Pages on every push to `main` (`.git
 
 To move to a custom domain: set `SITE_URL` to the domain and `BASE_PATH` to `/` in the workflow, and set the domain in the repository's Pages settings.
 
-## Planned
-
-Demos are declared per project (`demo.kind`: `replay`, `recording`, `live`). React islands for replay visualizers will be added when the first demo is built; nothing needs to change in the content model for that.

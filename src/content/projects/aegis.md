@@ -18,10 +18,6 @@ metrics:
 links:
   repo: https://github.com/Furqan-2006/Aegis
   repoVisibility: public
-demo:
-  kind: recording
-  status: planned
-  note: A terminal recording of an attack simulation producing live alerts.
 updated: 2026-11-26
 ---
 
@@ -41,4 +37,4 @@ The two halves run together end to end: events from the daemon reach the policy 
 
 ## Limits and next steps
 
-Several limits are known and recorded rather than hidden. Process exit codes are always reported as -1, the setuid flag is always false, and the source fields of a file-modified event are zeroed. Network monitoring covers IPv4 TCP only. Because the daemon polls, a process that lives for less than the poll interval can be missed, which is the trade-off of avoiding eBPF. Matching sockets to the processes that own them is deferred. The next step is a recorded attack-simulation demo.
+Several limits are known and recorded rather than hidden. Process exit codes are always reported as -1, the setuid flag is always false, and the source fields of a file-modified event are zeroed. Network monitoring covers IPv4 TCP only. Because the daemon polls, a process that lives for less than the poll interval can be missed, which is the trade-off of avoiding eBPF. Matching sockets to the processes that own them is deferred.

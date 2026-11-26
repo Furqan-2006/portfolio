@@ -17,10 +17,6 @@ metrics:
 links:
   repo: https://github.com/Furqan-2006/example
   repoVisibility: public     # public | private (omit repo if private)
-demo:
-  kind: recording            # replay | recording | live
-  status: planned            # planned | available
-  note: What the demo will show.
 updated: 2026-01-01
 ---
 

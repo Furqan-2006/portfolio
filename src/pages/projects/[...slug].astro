@@ -67,16 +67,6 @@ const updated = d.updated.toLocaleDateString('en', { day: 'numeric', month: 'sho
       {d.links.docs && <a href={d.links.docs} class="rounded-lg border border-line px-3 py-1.5 text-muted no-underline hover:text-accent">docs ↗</a>}
     </div>
 
-    {d.demo && (
-      <aside class="mt-6 rounded-xl border border-dashed border-line p-5 text-sm">
-        <p class="font-mono text-xs uppercase tracking-wider text-muted">Demo · {d.demo.kind} · {d.demo.status}</p>
-        {d.demo.note && <p class="mt-2 text-muted">{d.demo.note}</p>}
-        {d.demo.status === 'available' && d.demo.url && (
-          <a href={d.demo.url} class="mt-3 inline-block font-mono text-accent">open demo →</a>
-        )}
-      </aside>
-    )}
-
     <div class="prose mt-10 max-w-3xl"><Content /></div>
 
     <p class="mt-12 font-mono text-xs text-muted">last updated {updated}</p>
