@@ -1,18 +1,20 @@
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/jetbrains-mono';
 @import 'tailwindcss';
 
 @theme {
-  --color-bg: #0b0f14;
-  --color-panel: #111820;
+  --color-bg: #101318;
+  --color-panel: #191F28;
   --color-line: #1f2a36;
-  --color-text: #d7dee6;
-  --color-muted: #8493a2;
-  --color-accent: #6ee7b7;
-  --color-running: #6ee7b7;
+  --color-text: #F1F5F9;
+  --color-muted: #A5B4C5;
+  --color-accent: #39D98A;
+  --color-running: #39D98A;
   --color-measured: #67b7f7;
   --color-design: #f2c264;
   --color-progress: #b9a2f2;
-  --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
-  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --font-sans: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
 html { background: var(--color-bg); color: var(--color-text); font-family: var(--font-sans); }

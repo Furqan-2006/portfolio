@@ -2,9 +2,9 @@
 export const site = {
   name: 'Furqan',
   fullName: 'Muhammad Furqan Sheikh',
-  tagline: 'Systems engineer, with security as a layer on top.',
-  intro:
-    'I build low-level and distributed systems in C, C++, Python and Go, and treat security as a property of the design rather than a feature added at the end.',
+  specialties: ['Systems Engineering', 'Linux Internals', 'Systems Security'],
+  tagline: 'Systems engineer.|Security by design.',
+  intro: 'I build low-level, distributed and security-oriented systems using C, C++, Python and Go.',
   email: 'furqansh.2oo6@gmail.com',
   github: 'https://github.com/Furqan-2006',
   // Shown on the home page. Keep to three short, true lines; edit when they change.
