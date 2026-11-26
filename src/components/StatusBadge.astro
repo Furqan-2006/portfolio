@@ -1,0 +1,14 @@
+---
+interface Props { status: 'running' | 'measured' | 'design-complete' | 'in-progress'; }
+const { status } = Astro.props;
+const map = {
+  running: { label: 'running', cls: 'text-running border-running/40', hint: 'Works end to end today' },
+  measured: { label: 'measured', cls: 'text-measured border-measured/40', hint: 'Evaluated, with recorded results' },
+  'design-complete': { label: 'design complete', cls: 'text-design border-design/40', hint: 'Specified and reviewed; implementation not finished' },
+  'in-progress': { label: 'in progress', cls: 'text-progress border-progress/40', hint: 'Being built' },
+} as const;
+const s = map[status];
+---
+<span title={s.hint} class:list={['inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-wider', s.cls]}>
+  <span class="h-1.5 w-1.5 rounded-full bg-current"></span>{s.label}
+</span>

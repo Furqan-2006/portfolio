@@ -1,0 +1,22 @@
+---
+import { site } from '../site';
+const path = Astro.url.pathname;
+const links = [
+  { href: '/projects/', label: 'Projects' },
+  { href: '/about/', label: 'About' },
+];
+---
+<header class="border-b border-line">
+  <nav class="mx-auto flex max-w-5xl items-center justify-between px-5 py-4 sm:px-8">
+    <a href="/" class="font-mono text-sm tracking-wide text-text no-underline">
+      <span class="text-accent">$</span> {site.name.toLowerCase()}
+    </a>
+    <ul class="flex gap-6 font-mono text-sm">
+      {links.map((l) => (
+        <li>
+          <a href={l.href} class:list={['no-underline hover:text-accent', path.startsWith(l.href) ? 'text-accent' : 'text-muted']}>{l.label}</a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+</header>

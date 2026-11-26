@@ -1,0 +1,16 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import StatusBadge from './StatusBadge.astro';
+interface Props { project: CollectionEntry<'projects'>; large?: boolean; }
+const { project, large = false } = Astro.props;
+const d = project.data;
+---
+<a href={`/projects/${project.id}/`} data-status={d.status} data-tags={d.tags.join(',')}
+   class:list={['project-card group block rounded-xl border border-line bg-panel no-underline transition hover:border-accent/50', large ? 'p-6' : 'p-5']}>
+  <div class="mb-3 flex items-start justify-between gap-3">
+    <h3 class:list={['font-semibold text-text group-hover:text-accent', large ? 'text-xl' : 'text-lg']}>{d.title}</h3>
+    <StatusBadge status={d.status} />
+  </div>
+  <p class="mb-4 text-sm text-muted">{d.pitch}</p>
+  <p class="font-mono text-xs text-muted/80">{d.stack.join(' · ')}</p>
+</a>

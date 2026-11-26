@@ -1,0 +1,83 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import StatusBadge from '../../components/StatusBadge.astro';
+import { getProjects } from '../../lib-projects';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((project) => ({ params: { slug: project.id }, props: { project } }));
+}
+
+const { project } = Astro.props;
+const d = project.data;
+const { Content } = await render(project);
+const fmt = (s: string) => {
+  const [y, m] = s.split('-');
+  return m ? new Date(Number(y), Number(m) - 1).toLocaleString('en', { month: 'short', year: 'numeric' }) : y;
+};
+const period = `${fmt(d.period.start)} – ${d.period.end ? fmt(d.period.end) : 'present'}`;
+const updated = d.updated.toLocaleDateString('en', { day: 'numeric', month: 'short', year: 'numeric' });
+---
+<Base title={d.title} description={d.pitch}>
+  <article class="pt-14">
+    <a href="/projects/" class="font-mono text-xs text-muted no-underline hover:text-accent">← projects</a>
+
+    <header class="mt-6">
+      <div class="flex flex-wrap items-center gap-4">
+        <h1 class="text-3xl font-semibold tracking-tight text-text sm:text-4xl">{d.title}</h1>
+        <StatusBadge status={d.status} />
+      </div>
+      <p class="mt-4 max-w-2xl text-lg text-muted">{d.pitch}</p>
+    </header>
+
+    <dl class="mt-8 grid gap-x-8 gap-y-4 rounded-xl border border-line bg-panel p-5 text-sm sm:grid-cols-2">
+      <div><dt class="font-mono text-xs uppercase tracking-wider text-muted">Context</dt><dd class="mt-1 text-text">{d.context}</dd></div>
+      <div><dt class="font-mono text-xs uppercase tracking-wider text-muted">Period</dt><dd class="mt-1 text-text">{period}</dd></div>
+      <div><dt class="font-mono text-xs uppercase tracking-wider text-muted">My part</dt><dd class="mt-1 text-text">{d.role}</dd></div>
+      <div><dt class="font-mono text-xs uppercase tracking-wider text-muted">Stack</dt><dd class="mt-1 font-mono text-text">{d.stack.join(' · ')}</dd></div>
+      {d.team.length > 0 && (
+        <div class="sm:col-span-2">
+          <dt class="font-mono text-xs uppercase tracking-wider text-muted">Team</dt>
+          <dd class="mt-1 text-text">{d.team.map((t) => (t.part ? `${t.name} (${t.part})` : t.name)).join(' · ')}</dd>
+        </div>
+      )}
+    </dl>
+
+    {d.metrics.length > 0 && (
+      <section class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {d.metrics.map((m) => (
+          <div class="rounded-xl border border-line p-4">
+            <div class="font-mono text-2xl text-accent">{m.value}</div>
+            <div class="mt-1 text-sm text-text">{m.label}</div>
+            {m.note && <div class="mt-1 text-xs text-muted">{m.note}</div>}
+          </div>
+        ))}
+      </section>
+    )}
+
+    <div class="mt-6 flex flex-wrap gap-3 font-mono text-sm">
+      {d.links.repoVisibility === 'public' && d.links.repo && (
+        <a href={d.links.repo} class="rounded-lg border border-line px-3 py-1.5 text-muted no-underline hover:text-accent">source ↗</a>
+      )}
+      {d.links.repoVisibility === 'private' && (
+        <span class="rounded-lg border border-line px-3 py-1.5 text-muted">source: private repository</span>
+      )}
+      {d.links.docs && <a href={d.links.docs} class="rounded-lg border border-line px-3 py-1.5 text-muted no-underline hover:text-accent">docs ↗</a>}
+    </div>
+
+    {d.demo && (
+      <aside class="mt-6 rounded-xl border border-dashed border-line p-5 text-sm">
+        <p class="font-mono text-xs uppercase tracking-wider text-muted">Demo · {d.demo.kind} · {d.demo.status}</p>
+        {d.demo.note && <p class="mt-2 text-muted">{d.demo.note}</p>}
+        {d.demo.status === 'available' && d.demo.url && (
+          <a href={d.demo.url} class="mt-3 inline-block font-mono text-accent">open demo →</a>
+        )}
+      </aside>
+    )}
+
+    <div class="prose mt-10 max-w-3xl"><Content /></div>
+
+    <p class="mt-12 font-mono text-xs text-muted">last updated {updated}</p>
+  </article>
+</Base>

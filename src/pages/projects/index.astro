@@ -1,0 +1,55 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getProjects } from '../../lib-projects';
+
+const projects = await getProjects();
+const tags = [...new Set(projects.flatMap((p) => p.data.tags))].sort();
+const statuses = [...new Set(projects.map((p) => p.data.status))];
+---
+<Base title="Projects" description="Systems and security projects, each labelled with what is actually built and measured.">
+  <section class="pt-14">
+    <h1 class="text-3xl font-semibold text-text">Projects</h1>
+    <p class="mt-3 max-w-2xl text-muted">Everything here is labelled with its real state. Filter by status or topic.</p>
+
+    <div id="filters" class="mt-8 flex flex-wrap gap-2 font-mono text-xs">
+      <button data-filter="all" class="chip chip-on">all</button>
+      {statuses.map((s) => <button data-filter={`status:${s}`} class="chip">{s}</button>)}
+      {tags.map((t) => <button data-filter={`tag:${t}`} class="chip">{t}</button>)}
+    </div>
+
+    <div id="grid" class="mt-8 grid gap-5 md:grid-cols-2">
+      {projects.map((p) => <ProjectCard project={p} />)}
+    </div>
+    <p id="empty" class="mt-8 hidden text-muted">No projects match that filter.</p>
+  </section>
+</Base>
+
+<style is:global>
+  .chip { border: 1px solid var(--color-line); border-radius: 999px; padding: 0.3rem 0.8rem; color: var(--color-muted); cursor: pointer; background: transparent; }
+  .chip:hover { color: var(--color-text); }
+  .chip-on { color: var(--color-accent); border-color: color-mix(in srgb, var(--color-accent) 50%, transparent); }
+</style>
+
+<script>
+  // Progressive enhancement: without JS every project is simply listed.
+  const chips = document.querySelectorAll<HTMLButtonElement>('#filters .chip');
+  const cards = document.querySelectorAll<HTMLElement>('#grid .project-card');
+  const empty = document.getElementById('empty')!;
+
+  function apply(filter: string) {
+    let shown = 0;
+    cards.forEach((card) => {
+      const tags = (card.dataset.tags ?? '').split(',');
+      const ok =
+        filter === 'all' ||
+        (filter.startsWith('status:') && card.dataset.status === filter.slice(7)) ||
+        (filter.startsWith('tag:') && tags.includes(filter.slice(4)));
+      card.style.display = ok ? '' : 'none';
+      if (ok) shown++;
+    });
+    empty.classList.toggle('hidden', shown > 0);
+    chips.forEach((c) => c.classList.toggle('chip-on', c.dataset.filter === filter));
+  }
+  chips.forEach((c) => c.addEventListener('click', () => apply(c.dataset.filter!)));
+</script>

@@ -1,0 +1,37 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-bg: #0b0f14;
+  --color-panel: #111820;
+  --color-line: #1f2a36;
+  --color-text: #d7dee6;
+  --color-muted: #8493a2;
+  --color-accent: #6ee7b7;
+  --color-running: #6ee7b7;
+  --color-measured: #67b7f7;
+  --color-design: #f2c264;
+  --color-progress: #b9a2f2;
+  --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+html { background: var(--color-bg); color: var(--color-text); font-family: var(--font-sans); }
+body { min-height: 100vh; line-height: 1.65; }
+a { color: inherit; }
+::selection { background: color-mix(in srgb, var(--color-accent) 30%, transparent); }
+
+/* Case-study body: prose styling for rendered Markdown. */
+.prose h2 { font-family: var(--font-mono); font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-accent); margin: 2.75rem 0 1rem; padding-top: 1.5rem; border-top: 1px solid var(--color-line); }
+.prose h3 { font-size: 1.05rem; font-weight: 600; margin: 1.75rem 0 0.5rem; }
+.prose p { margin: 0 0 1rem; color: #c3ccd6; }
+.prose ul, .prose ol { margin: 0 0 1rem 1.25rem; color: #c3ccd6; }
+.prose ul { list-style: disc; } .prose ol { list-style: decimal; }
+.prose li { margin: 0.25rem 0; }
+.prose a { color: var(--color-accent); text-underline-offset: 3px; }
+.prose code { font-family: var(--font-mono); font-size: 0.88em; background: var(--color-panel); border: 1px solid var(--color-line); padding: 0.1em 0.35em; border-radius: 4px; }
+.prose pre { background: var(--color-panel); border: 1px solid var(--color-line); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 0 0 1.25rem; font-size: 0.85rem; }
+.prose pre code { background: none; border: 0; padding: 0; }
+.prose table { width: 100%; border-collapse: collapse; margin: 0 0 1.25rem; font-size: 0.92rem; }
+.prose th { text-align: left; font-weight: 600; color: var(--color-muted); font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.prose th, .prose td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--color-line); vertical-align: top; }
+.prose blockquote { border-left: 3px solid var(--color-accent); padding-left: 1rem; color: var(--color-muted); margin: 0 0 1rem; }

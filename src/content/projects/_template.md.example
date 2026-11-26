@@ -1,0 +1,33 @@
+---
+title: Project name
+pitch: One sentence, under 180 characters, saying what it is and what it does.
+status: in-progress          # running | measured | design-complete | in-progress
+featured: false              # true shows it on the home page
+order: 50                    # lower numbers first
+draft: true                  # remove or set false to publish
+tags: [systems]
+stack: [C]
+context: Course project, FAST NUCES
+role: What you personally owned
+team:
+  - { name: Teammate, part: What they owned }
+period: { start: 2026-01 }   # end optional; YYYY-MM
+metrics:
+  - { value: "0", label: What was counted or measured, note: Where the number comes from }
+links:
+  repo: https://github.com/Furqan-2006/example
+  repoVisibility: public     # public | private (omit repo if private)
+demo:
+  kind: recording            # replay | recording | live
+  status: planned            # planned | available
+  note: What the demo will show.
+updated: 2026-01-01
+---
+
+## Problem
+
+## Design
+
+## Evidence
+
+## Limits and next steps
