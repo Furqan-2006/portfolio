@@ -1,6 +1,6 @@
 ---
 title: Lifeline
-pitch: A peer-to-peer emergency network where phones relay text messages and SOS beacons to each other with no tower, SIM or internet.
+pitch: A phone-to-phone emergency network. Phones pass text messages and SOS beacons along to each other, with no tower, SIM or internet.
 status: measured
 featured: true
 order: 1
@@ -25,21 +25,21 @@ updated: 2026-11-26
 
 ## Problem
 
-In a disaster the first thing to fail is usually the infrastructure people rely on to reach each other: towers lose power and backhaul is cut. Lifeline asks what communication is still possible with nothing but the devices people are already carrying. Users in radio range talk directly. Users out of range reach each other through whoever is in between, which acts as a router. The network carries two kinds of traffic, short text messages and SOS beacons with coordinates, and aims to cover at least a kilometre.
+In a disaster, the infrastructure people use to reach each other is usually the first thing to fail. Towers lose power and backhaul gets cut. Lifeline asks what we can still do with only the devices people already carry. Phones in radio range talk directly. Phones out of range reach each other through whoever is in between, who acts as a router. The network carries two kinds of traffic, short text messages and SOS beacons with coordinates, and aims to cover at least a kilometre.
 
 ## Design
 
-The forwarding protocol, called Relay, is deliberately simple: epidemic-style flooding with a TTL, duplicate suppression by message ID, per-neighbour rate limits and a per-sender replay window. Adaptive routing schemes were ruled out of scope so that the behaviour of flooding itself can be measured.
+The forwarding protocol is called Relay, and it is simple on purpose. It floods messages with a TTL, drops duplicates by message ID, rate-limits each neighbour and keeps a replay window per sender. We left adaptive routing out of scope so we could measure how flooding itself behaves.
 
-Delivery is end to end. A per-hop acknowledgement would only confirm that a frame was transmitted, so the sender keeps a text until the recipient's acknowledgement arrives and re-offers it on a timer. Relays do not take custody of messages, and when buffers fill, texts are dropped before SOS messages.
+Delivery is end to end. A per-hop acknowledgement only tells you a frame was sent, so the sender holds on to a text until the recipient's acknowledgement arrives, and offers it again on a timer. Relays don't take custody of messages. When buffers fill up, texts are dropped before SOS messages.
 
-Every message is signed. A node's ID is a 128-bit hash of its Ed25519 public key, and each message carries an Ed25519 signature. Texts are encrypted with a one-shot ECIES-style scheme (ephemeral X25519, HKDF, ChaCha20-Poly1305). Keys are learned either from HELLO beacons, on a trust-on-first-use basis, or from a QR code, which counts as verified.
+Every message is signed. A node's ID is a 128-bit hash of its Ed25519 public key, and each message carries an Ed25519 signature. Texts are encrypted with a one-shot ECIES-style scheme (ephemeral X25519, HKDF, ChaCha20-Poly1305). A node learns keys either from HELLO beacons, trusting the first one it sees, or from a QR code, which counts as verified.
 
-The code is built around four frozen contracts and a runtime in which a module never reads the wall clock or a global random source. Time, randomness and logging are injected, and every node writes the same structured event log. That makes a run reproducible from its seed, lets modules be tested against an in-memory network with no sockets, and gives the later emulation a single record to analyse.
+The code is built around four frozen contracts. A module never reads the wall clock or a global random source. Time, randomness and logging are passed in, and every node writes the same structured event log. That lets us reproduce a run from its seed, test modules against an in-memory network with no sockets, and gives the later emulation one record to analyse.
 
 ## Evidence
 
-Before building on the emulator, the team characterized it. The spike report covers ten areas and all pass. The findings that shaped the design:
+Before building on the emulator, the team tested the emulator itself. The spike report covers ten areas and all of them pass. These findings shaped the design:
 
 | Question | Result |
 | --- | --- |
@@ -50,10 +50,10 @@ Before building on the emulator, the team characterized it. The spike report cov
 | Does it scale? | 5, 15, 20 and 30 stations pass, 6% CPU at 30 |
 | Is it reproducible? | Three identical runs differ by 0.000; five start/stop cycles leak nothing |
 
-One result is worth stating plainly. A 0.5% frame loss appeared with 16 receivers. The obvious suspect was receive-buffer overflow at startup, so a follow-up test drained the buffers first. It drained zero packets and delivered slightly less, which ruled the suspect out. The cause is more likely a race while stations join the network, so the loss is treated as a startup effect and not counted as range loss.
+One result I want to be upfront about. We saw 0.5% frame loss with 16 receivers. My first guess was receive-buffer overflow at startup, so a follow-up test drained the buffers first. It drained zero packets and delivered slightly less, so that guess was wrong. The more likely cause is a race while stations join the network. We treat it as a startup effect and don't count it as range loss.
 
 ## Limits and next steps
 
-Everything here is emulated. The emulator's radio model has a hard range cutoff with no gradual fade, so range results show the protocol's behaviour under that model and not on real radios. The hardware prototype was cut from scope. At the time of writing the scenario planner and runner exist with the first scenario, a 5% loss run. The full evaluation from the proposal, three loss levels with several seeds against a naive-flooding baseline, is still to be run, and this page will be updated with those results.
+Everything here is emulated. The emulator's radio model has a hard range cutoff and no gradual fade, so the range results show how the protocol behaves under that model, not on real radios. We cut the hardware prototype from scope. Right now the scenario planner and runner exist with the first scenario, a 5% loss run. The full evaluation from the proposal is still to run: three loss levels with several seeds, against a naive-flooding baseline. I'll update this page when those results are in.
 
-The security scope is also narrow by design. Lifeline defends against forged, replayed, tampered and flooding traffic. It does not defend against Sybil attackers, key compromise or impersonation at first contact.
+The security scope is narrow too, by design. Lifeline defends against forged, replayed, tampered and flooding traffic. It does not defend against Sybil attackers, key compromise or someone impersonating a node at first contact.

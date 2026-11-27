@@ -1,13 +1,13 @@
 ---
 title: JusticeFlow
-pitch: A police case and evidence system. A C++ daemon between a Flask dashboard and PostgreSQL enforces sign-in, runs background jobs and keeps an audit trail.
+pitch: A police case and evidence system. A C++ daemon sits between the Flask dashboard and PostgreSQL, handles sign-in, runs background jobs and keeps an audit trail.
 status: running
 featured: false
 order: 4
 tags: [systems, databases, security, linux]
 stack: [C++17, PostgreSQL, Python, Flask, Unix domain sockets, POSIX shared memory, scikit-learn]
 context: Multi-course semester project (databases, software design, AI, operating systems), FAST NUCES
-role: The scheduler, daemon and control-plane layer (double-fork daemon, job executor, agent process spawner), and the 2026-11 end-to-end integration, done with Claude as a co-author
+role: The scheduler, daemon and control-plane layer (double-fork daemon, job executor, agent process spawner), plus the November end-to-end integration, which I did with Claude as a co-author
 team:
   - { name: Abdullah, part: IPC layer }
   - { name: Abu Bakar, part: threading layer }
@@ -25,7 +25,7 @@ updated: 2026-11-26
 
 ## Problem
 
-Police casework needs records that cannot be quietly rewritten: who registered a report, who attached which evidence, who issued a warrant, and when. JusticeFlow was built as a single project across four courses, so the design question was how to join a database layer, an application architecture, machine-learning agents and an operating-systems layer so that a request really passes through all of them, not just sits next to them on a diagram.
+Police records shouldn't be something you can quietly rewrite: who registered a report, who attached which evidence, who issued a warrant, and when. We built JusticeFlow as one project across four courses (databases, software design, AI and operating systems). The hard part was getting a request to actually pass through every layer, instead of the layers just sitting next to each other on a diagram.
 
 ## Design
 
@@ -50,22 +50,29 @@ Police casework needs records that cannot be quietly rewritten: who registered a
 <figcaption>One request path: the dashboard never talks to the database. Agents run as their own database role.</figcaption>
 </figure>
 
-A request has one path. The Flask dashboard never opens a database connection. It sends one length-prefixed JSON frame over a Unix domain socket to a C++ daemon, which checks the session token, runs the command against PostgreSQL and replies. Sign-in, sign-out and "who am I" are handled by the daemon's command router, and every data read and every write is refused without a valid token.
+A request takes one path. The Flask dashboard never opens a database connection. It sends one length-prefixed JSON frame over a Unix domain socket to a C++ daemon. The daemon checks the session token, runs the command against PostgreSQL and sends back the reply. Sign-in, sign-out and "who am I" go through the daemon's command router too, and every read and write is refused without a valid token.
 
-Writes are where the design earns its keep. A write runs as the signed-in officer in a single locked transaction that first sets the current officer's ID, then runs a statement with bound parameters. The database's audit triggers read that ID, so the audit log names the real officer and belt number. The application's database role has no `DELETE` and cannot `UPDATE` audit rows, so the application itself cannot rewrite history.
+The writes are the part I like most. A write runs as the signed-in officer inside one locked transaction. It first sets the current officer's ID, then runs a statement with bound parameters. The database's audit triggers read that ID, so the audit log records the real officer and belt number. The app's database role has no `DELETE` and can't `UPDATE` audit rows, so the application can't rewrite history even if it wants to.
 
-The control plane, this role's part, makes the daemon more than a request server. It daemonizes with a double fork and `setsid`, and it shuts down cleanly on `SIGINT` or `SIGTERM` by waiting for the signal with `sigwait()` on the main thread. A one-second ticker thread runs the standing jobs. One expires warrants whose valid-until date has passed. Another starts each of three AI agents (crime hotspots, case priority, officer workload) with `posix_spawn`, reaps them with `waitpid`, kills them on timeout, and records the outcome in shared memory: 0 for success, the exit code, or 124 for a timeout. Agents get their own database role and a stripped environment, so a compromised agent does not inherit the daemon's login.
+My part is the control plane, which turns the daemon into more than a request server. It daemonizes with a double fork and `setsid`, and it shuts down cleanly on `SIGINT` or `SIGTERM` by waiting for the signal with `sigwait()` on the main thread. A one-second ticker thread runs the standing jobs. One expires warrants whose valid-until date has passed. Another starts each of the three AI agents (crime hotspots, case priority, officer workload) with `posix_spawn`, waits for them with `waitpid`, kills them on timeout and records the result in shared memory: 0 for success, the exit code, or 124 for a timeout. The agents get their own database role and a stripped environment, so a compromised agent doesn't inherit the daemon's login.
 
 ## Evidence
 
-The system is checked end to end by `make smoke`, which makes 22 checks through the same doors a user would use: an anonymous request is refused; a wrong password is rejected with a generic message; an Inspector signs in; an FIR is registered, and an injection attempt in its address is stored as plain text with the `cases` table intact; evidence and a warrant are added; the daemon's scheduler expires the warrant once its dates are moved into the past; all three agents report success; the new rows are attributed to the officer; the application role is refused `UPDATE` and `DELETE` on the audit log; and the dashboard shows the result. I ran the stack on a clean machine from the repository and all 22 checks passed. The seeded database holds 22,405 rows, including 150 officers.
+`make smoke` tests the whole system with 22 checks, going through the same doors a user would. An anonymous request is refused. A wrong password gets a generic rejection. An Inspector signs in. An FIR is registered, and an injection attempt in its address is stored as plain text with the `cases` table intact. Evidence and a warrant are added. The daemon's scheduler expires the warrant once its dates are moved into the past. All three agents report success. The new rows are attributed to the officer. The app role is refused `UPDATE` and `DELETE` on the audit log. The dashboard shows the result. I ran the stack on a clean machine from the repo and all 22 checks passed.
 
-The integration work found real faults, and they are written up in the repository's end-to-end report. The daemon did not compile because a second `main()` was pulled in by the Makefile's source glob. A test-only environment variable let anyone sign in without a database check. Writes were built by string concatenation, so they were injectable. The shared-memory status table's condition variable was never initialised. `SIGTERM` could hang the daemon, because on Linux closing a listening socket does not wake a thread blocked in `accept()`, so the socket is now shut down first. The original timer design used `SIGALRM`, which conflicts with `sigwait()`-based shutdown, so it was replaced by the ticker thread. A hardcoded database password was removed from the tree.
+The integration work found real bugs, and they're written up in the repo's end-to-end report:
+- The daemon didn't compile, because the Makefile's source glob pulled in a second `main()`.
+- A test-only environment variable let anyone sign in without a database check.
+- Writes were built by string concatenation, so they were injectable.
+- The condition variable in the shared-memory status table was never initialised.
+- `SIGTERM` could hang the daemon. On Linux, closing a listening socket doesn't wake a thread blocked in `accept()`, so now the socket is shut down first.
+- The original timer used `SIGALRM`, which clashes with shutting down through `sigwait()`, so I replaced it with the ticker thread.
+- A hardcoded database password is gone from the tree.
 
-The integration phases were done as pull requests with Claude as a co-author, and the report says so.
+We did the integration phases as pull requests with Claude as a co-author. The report says so.
 
 ## Limits and next steps
 
-The three original subsystem layers, about 8,000 lines that carry the course's design patterns (Strategy, Observer, Repository, Singleton, Template Method), are not on the gateway's request path. Some of that code builds SQL by concatenation or queries tables that don't exist. They need porting to the real schema with parameterised queries, or retiring. The thread pool, timer and signal-handler classes are also not started by the daemon.
+About 8,000 lines of the original subsystem code are not on the gateway's request path. That's where the course's design patterns live (Strategy, Observer, Repository, Singleton, Template Method). Some of it builds SQL by concatenation or queries tables that don't exist. It needs to be ported to the real schema with parameterised queries, or removed. The thread pool, timer and signal-handler classes aren't started by the daemon either.
 
-The C++ unit test suite is the weakest part. When I ran it, `make test` ended with 103 passing, 14 skipped for lack of a configured test database, and 3 sign-in tests failing, so the smoke test is the check to trust. Sessions and lockouts live in daemon memory and vanish on restart. The dashboard runs on Flask's development server, has no CSRF tokens and does not mark its cookie `Secure`, and the gateway uses one thread per connection and one serialised database connection. Seeded officers all share one development password. The old hardcoded password remains in the public git history, so it should be treated as exposed and changed wherever it was used. The README's course-integration section still describes the original `SIGALRM` scheduler and thread pool, which the running system no longer uses.
+The C++ unit tests are the weakest part. When I ran them, `make test` finished with 103 passing, 14 skipped because there's no test database set up, and 3 sign-in tests failing. So trust the smoke test. Sessions and lockouts live in the daemon's memory and disappear on restart. The dashboard runs on Flask's development server, has no CSRF tokens and doesn't mark its cookie `Secure`. The gateway uses one thread per connection and a single serialised database connection. The seeded officers all share one development password. The old hardcoded password is still in the public git history, so treat it as exposed and change it anywhere it was used. The README's course-integration section still describes the old `SIGALRM` scheduler and thread pool, which the running system doesn't use.
